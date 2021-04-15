@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace Sbooker\PersistentSequences\Persistence\Doctrine;
 
-use Sbooker\PersistentSequences\Sequence;
-use Sbooker\PersistentSequences\SequenceWriteStorage;
 use Doctrine\DBAL\LockMode;
 use Doctrine\ORM\EntityRepository;
+use Sbooker\PersistentSequences\Sequence;
+use Sbooker\PersistentSequences\SequenceReadStorage;
+use Sbooker\PersistentSequences\SequenceWriteStorage;
 
-final class Repository extends EntityRepository implements SequenceWriteStorage
+final class Repository extends EntityRepository implements SequenceWriteStorage, SequenceReadStorage
 {
     /**
      * @throws \Doctrine\ORM\ORMException
@@ -26,5 +27,13 @@ final class Repository extends EntityRepository implements SequenceWriteStorage
     public function getAndLock(string $sequenceName): ?Sequence
     {
         return $this->find($sequenceName, LockMode::PESSIMISTIC_WRITE);
+    }
+
+    /**
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function get(string $sequenceName): ?Sequence
+    {
+        return $this->find($sequenceName);
     }
 }
