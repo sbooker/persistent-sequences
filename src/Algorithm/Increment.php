@@ -8,6 +8,13 @@ use Sbooker\PersistentSequences\Algorithm;
 
 final class Increment implements Algorithm
 {
+    private int $first;
+
+    public function __construct(int $first = 0)
+    {
+        $this->first = $first;
+    }
+
     public function next(string $currentValue): string
     {
         return (string) ((int) $currentValue + 1);
@@ -15,6 +22,6 @@ final class Increment implements Algorithm
 
     public function first(): string
     {
-        return '0';
+        return (string)$this->first;
     }
 }
