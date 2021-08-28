@@ -6,15 +6,10 @@ use Sbooker\TransactionManager\TransactionManager;
 
 final class SequenceGenerator
 {
-    private SequenceWriteStorage $storage;
-
     private TransactionManager $transactionManager;
 
-    public function __construct(
-        SequenceWriteStorage $storage,
-        TransactionManager $transactionManager
-    ) {
-        $this->storage = $storage;
+    public function __construct(TransactionManager $transactionManager)
+    {
         $this->transactionManager = $transactionManager;
     }
 
@@ -25,11 +20,11 @@ final class SequenceGenerator
     {
         return
             $this->transactionManager->transactional(function () use ($sequenceName, $algorithm): string {
-                $sequence = $this->storage->getAndLock($sequenceName);
+                $sequence = $this->transactionManager->getLocked(Sequence::class, $sequenceName);
 
                 if (null === $sequence) {
                     $sequence = new Sequence($sequenceName, $algorithm);
-                    $this->storage->add($sequence);
+                    $this->transactionManager->persist($sequence);
                 }
 
                 $sequence->updateValue($algorithm);
